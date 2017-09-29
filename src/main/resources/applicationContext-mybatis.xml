@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--读取连接数据库的配置的文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--jndi获取数据库连接（dbcp）-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" scope="singleton">
+        <!--加载驱动-->
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <!--获取url-->
+        <property name="url" value="${jdbc.url}"/>
+        <!--获取用户名-->
+        <property name="username" value="${jdbc.username}"/>
+        <!--获取密码-->
+        <property name="password" value="${jdbc.password}"/>
+        <!--初始化连接数-->
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <!--连接池中能获取最大连接数 默认值为8-->
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+        <!--允许连接池中的最大空闲数，默认值为8-->
+        <property name="maxIdle" value="${jdbc.maxIdle}"/>
+        <!--最小连接数 低于这个值就会创建连接 默认值为0  -->
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        <!--最大等待时间 连接池中如果没有连接 如果等待时间超出这个时间 就会抛出异常
+        如果设置-1就会无限等待 默认值就是无限等待-->
+        <property name="maxWait" value="${jdbc.maxWait}"/>
+        <!--开启无用连接的回收机制 默认值为false-->
+        <property name="removeAbandoned" value="${jdbc.removeAbandoned}"/>
+        <!--当我的连接池超出我配置的时间 就会回收没用的连接-->
+        <property name="removeAbandonedTimeout" value="${jdbc.removeAbandonedTimeout}"/>
+        <!--sql心跳包:保证连接池中连接是真实有效的连接-->
+        <!--开启Evict的定时校验，循环校验-->
+        <property name="testWhileIdle" value="true"/>
+        <!--定义Evict的时间间隔，单位：毫秒，大于0才会开启evict-->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <!--在进行borrowObject处理时，会对拿到的连接进行校验-->
+        <property name="testOnReturn" value="false"/>
+        <!--校验使用的sql语句，validationQuery,复杂的校验sql会影响性能-->
+        <property name="validationQuery" value="select 1"/>
+        <!--配置每次校验连接的数量，一般等于maxActive-->
+        <property name="numTestsPerEvictionRun" value="${jdbc.maxActive}"/>
+    </bean>
+    <!--配置事务管理-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--配置mybatis SqlSessionFactoryBean-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+    </bean>
+    <!--AOP事务处理 告诉AOP我要采用自动代理模式proxy-target-class="true"cjlib代理-->
+    <aop:aspectj-autoproxy/>
+    <aop:config proxy-target-class="true">
+        <aop:pointcut id="pointcut" expression="execution(* *org.slsale.service..*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"/>
+    </aop:config>
+    <!--配置那个方法被切-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="hl*" propagation="REQUIRED" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--mapper 接口所在的包名，spring会自动查找其下的Mapper-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.slsale.dao.*"/>
+    </bean>
+    <!--使所有dao层，service层注解生效-->
+    <context:component-scan base-package="org.slsale">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+    </context:component-scan>
+    <!--redis的配置-->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="90"/>
+        <property name="maxIdle" value="10"/>
+        <property name="maxWaitMillis" value="1000"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+    <!--构造注入端口号和ip-->
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg  ref="jedisPoolConfig"/>
+        <constructor-arg  value="192.168.21.207"/>
+        <constructor-arg  value="6379"/>
+    </bean>
+    <!--注入redisAPI-->
+    <bean id="redisAPI" class="org.slsale.util.JedisAPI">
+        <property name="jedisPool" ref="jedisPool"/>
+    </bean>
+</beans>
