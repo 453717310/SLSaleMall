@@ -3,7 +3,6 @@ $("#loginButton").click(function () {
     user.loginCode=$.trim($("#loginCode").val());//获得用户名
     user.password=$.trim($("#password").val());//获得密码
     user.isStart=1;//是否启用
-
     //非空验证
     if(null==user.loginCode || ""==user.loginCode){
         $("#loginCode").focus;

@@ -15,7 +15,7 @@
     <meta name="author" content="Muhammad Usman">
 
     <!-- The styles -->
-    <link  href="/statics/css/bootstrap-cerulean.css" rel="stylesheet">
+    <link href="/statics/css/bootstrap-cerulean.css" rel="stylesheet">
     <style type="text/css">
         body {
             padding-bottom: 40px;
@@ -28,7 +28,7 @@
     <link href="/statics/css/charisma-app.css" rel="stylesheet">
     <link href="/statics/css/jquery-ui-1.8.21.custom.css" rel="stylesheet">
     <link href='/statics/css/fullcalendar.css' rel='stylesheet'>
-    <link href='/statics/css/fullcalendar.print.css' rel='stylesheet'  media='print'>
+    <link href='/statics/css/fullcalendar.print.css' rel='stylesheet' media='print'>
     <link href='/statics/css/chosen.css' rel='stylesheet'>
     <link href='/statics/css/uniform.default.css' rel='stylesheet'>
     <link href='/statics/css/colorbox.css' rel='stylesheet'>

@@ -1,11 +1,12 @@
 package org.slsale.pojo;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * 存放主菜单与子菜单
  */
-public class Menu {
+public class Menu implements Serializable{
 	private Function mainMenu;//主菜单
 	private List<Function> subMenus;//子菜单
 

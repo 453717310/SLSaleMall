@@ -11,8 +11,9 @@ import org.slsale.pojo.User;
 import org.slsale.service.menu.FunctionService;
 import org.slsale.service.user.UserService;
 import org.slsale.util.Constans;
-import org.slsale.util.JedisAPI;
+import org.slsale.util.redis.impl.RedisAPI;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,32 +30,43 @@ import java.util.Map;
 /**
  * Created by dll on 2017/9/20.
  * 关于用户的前台数据请求处理的controller
+ * @author dll
  */
 @Controller
 public class LoginController extends BaseCotroller{
-    //创建日志对象
     private Logger logger=Logger.getLogger(LoginController.class);
     @Resource
     private UserService userService;
     @Resource
     private FunctionService functionService;
     @Resource
-    private JedisAPI jedisAPI;
+    private RedisAPI redisAPI;
+
+    /**
+     * 登录验证
+     * @param session
+     * @param user
+     * @return
+     */
     @RequestMapping("/login.html")
     @ResponseBody
     public Object login(HttpSession session, @RequestParam String user){
-        if (user==null || "".equals(user))
+        if (user==null || "".equals(user)) {
             return "noData";
+        }
         //解析前台传过来的json数据
         JSONObject jsonObject = JSONObject.fromObject(user);
-        User userObj = (User) jsonObject.toBean(jsonObject, User.class);
+        User userObj = (User) JSONObject.toBean(jsonObject, User.class);
         try {
             if (userService.loginCodeIsExist(userObj)==0)//用户不存在
+            {
                 return "notExistLoginCode";
+            }
             User loginUser = userService.getLoginUser(userObj);
             logger.debug("当前用户"+loginUser);
-            if (loginUser==null)
+            if (loginUser==null) {
                 return "passwordError";
+            }
             //登录成功 把用户放到session中
             session.setAttribute(Constans.SESSION_USER,loginUser);
             //更新用户的登录时间
@@ -70,36 +82,47 @@ public class LoginController extends BaseCotroller{
         }
 
     }
+
+    /**
+     * 把数据返回到前台
+     * @param session
+     * @return
+     */
     @RequestMapping("/main.html")
     public ModelAndView main(HttpSession session){
         logger.debug("进入了main页面！！！！");
         User currentUser = this.getCurrentUser();
         //菜单列表
         List<Menu> menuList=null;
-        if (null==currentUser)
+        if (null==currentUser) {
             return new ModelAndView("redirect:/");
+        }
         Map<String,Object> model=new HashMap<>();
         model.put("user",currentUser);
         /**
          * key:menuList+roleId value:MenuList
          */
-        if (jedisAPI.exist("menuList"+currentUser.getRoleId())){
+        if (redisAPI.exist("menuList"+currentUser.getRoleId())){
             //获取数据
-            String jedisList = jedisAPI.get("menuList" + currentUser.getRoleId());
-            logger.debug("jedisList========="+jedisList);
-            if (jedisList==null || "".equals(jedisList))
+            menuList = (List<Menu>) redisAPI.get("menuList" + currentUser.getRoleId());
+            logger.debug("jedisList========="+menuList);
+            if (menuList==null || "".equals(menuList)) {
                 return new ModelAndView("redirect:/");
-            model.put("mList",jedisList);
+            }
+            JSONArray jsonArray = JSONArray.fromObject(menuList);
+            String redisList = jsonArray.toString();
+            model.put("mList",redisList);
         }else {
             menuList=getMenuListByRoleId(currentUser.getRoleId());
-            if (null==menuList)
-                return new ModelAndView("main",model);
+            if (null==menuList) {
+                return new ModelAndView("main", model);
+            }
             //转换成json数据
             JSONArray jsonArray = JSONArray.fromObject(menuList);
             String s = jsonArray.toString();
             logger.debug("获得一级二级菜单的数据"+s);
             model.put("mList",s);//存放到model中
-            jedisAPI.set("menuList" + currentUser.getRoleId(),s);
+            redisAPI.set("menuList" + currentUser.getRoleId(),menuList);
         }
         session.setAttribute(Constans.SESSION_BASE_MODEL,model);
         return new ModelAndView("main",model);
@@ -118,16 +141,18 @@ public class LoginController extends BaseCotroller{
         //调用后台方法查询一级菜单
         try {
             List<Function> firstFunctionList = functionService.getFirstFunctionList(authority);
-            if (firstFunctionList==null)
+            if (firstFunctionList==null) {
                 return null;
+            }
             for (Function function : firstFunctionList) {
                 Menu menu=new Menu();
                 menu.setMainMenu(function);
                 //根据一级菜单 查询下面的二级菜单
                 function.setRoleId(roleId);
                 List<Function> twoFunctionList = functionService.getTwoFunctionList(function);
-                if (twoFunctionList==null)
+                if (twoFunctionList==null) {
                     continue;
+                }
                 menu.setSubMenus(twoFunctionList);
                 list.add(menu);
             }
@@ -145,5 +170,9 @@ public class LoginController extends BaseCotroller{
         session.invalidate();
         this.setCurrentUser(null);
         return "redirect:/";
+    }
+    @GetMapping("/login")
+    public String login(){
+        return "user/login";
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.slsale.dao.authority.AuthorityMapper">
+    <!--根据角色id  和 功能id 获得权限列表-->
+    <select id="getAuthority" resultType="Authority" parameterType="Authority">
+        SELECT * FROM au_authority WHERE roleId=#{roleId} AND functionId=#{functionId}
+    </select>
+</mapper>

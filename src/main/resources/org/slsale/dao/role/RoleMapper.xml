@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.slsale.dao.role.RoleMapper">
+    <!--查询启用的角色列表-->
+    <select id="getRoleList" resultType="Role">
+      SELECT
+        <include refid="sqlRole"/>
+          FROM au_role WHERE isStart=1
+    </select>
+    <!--sql片段-->
+    <sql id="sqlRole">
+        id,roleCode,roleName,createDate,isStart,createdBy
+    </sql>
+    <!--查询所有的角色列表-->
+    <select id="getAllRoleList" resultType="Role">
+        SELECT
+          <include refid="sqlRole"/>
+            FROM au_role
+    </select>
+    <!--新增角色-->
+    <insert id="addRole" parameterType="Role">
+        INSERT INTO au_role( <include refid="sqlRole"/>) VALUES (#{id},#{roleCode},#{roleName},#{createDate},#{isStart},#{createdBy})
+    </insert>
+    <!--根据id删除角色-->
+    <delete id="deleteRole" >
+        DELETE FROM au_role WHERE id=#{xxx}
+    </delete>
+    <!--根据角色id修改角色-->
+    <update id="updateRole" parameterType="Role">
+        UPDATE au_role
+          <set>
+              <if test="roleCode!=null and roleCode!=''">
+                  roleCode=#{roleCode}
+              </if>
+              <if test="roleName!=null and roleName!=''">
+                  roleName=#{roleName}
+              </if>
+              <if test="isStart!=null and isStart!=''">
+                  isStart=#{isStart}
+              </if>
+          </set>
+        WHERE id=#{id}
+    </update>
+</mapper>

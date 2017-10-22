@@ -5,14 +5,15 @@
 <mapper namespace="org.slsale.dao.user.UserMapper">
     <!--sql段-->
     <sql id="sqlSelect">
-        SELECT id,loginCode,password,password2,userName,sex,birthday,cardType,cardTypeName,idCard,country
+        id,loginCode,password,password2,userName,sex,birthday,cardType,cardTypeName,idCard,country
         ,mobile,email,userAddress,postCode,createTime,referId,referCode,roleId,roleName,userType,userTypeName,isStart,
-        lastUpdateTime,lastLoginTime,bankAccount,bankName,accountHolder,idCardPicPath,bankPicPath FROM au_user
+        lastUpdateTime,lastLoginTime,bankAccount,bankName,accountHolder,idCardPicPath,bankPicPath
     </sql>
     <!--根据用户名密码，查询用户-->
     <select id="getLoginUser" parameterType="User" resultType="User">
-        <include refid="sqlSelect"/>
-        WHERE loginCode=#{loginCode} AND password=#{password}
+        SELECT
+          <include refid="sqlSelect"/> FROM au_user
+            WHERE loginCode=#{loginCode} AND password=#{password}
     </select>
     <!--判断登录用户名是否存在-->
     <select id="loginCodeIsExist" parameterType="User" resultType="int">
@@ -20,6 +21,9 @@
         <trim prefix="where" prefixOverrides="and | or">
             <if test="loginCode!=null and loginCode!=''">
                 AND loginCode=#{loginCode}
+            </if>
+            <if test="id!=null and id!=''">
+                AND id!=#{id}
             </if>
         </trim>
     </select>
@@ -59,5 +63,87 @@
         </set>
         where id = #{id}
     </update>
+    <!--模糊查询用户分页-->
+    <select id="getUserList" parameterType="Map" resultType="User">
+        SELECT <include refid="sqlSelect"/> FROM au_user
+            <trim prefix="where" prefixOverrides="and | or">
+                <if test="loginCode!=null">
+                    and loginCode LIKE concat('%',#{loginCode},'%')
+                </if>
+                <if test="referCode!=null">
+                    and referCode LIKE concat('%',#{referCode},'%')
+                </if>
+                <if test="roleId>0">
+                    and roleId=#{roleId}
+                </if>
+                <if test="isStart>0">
+                    and isStart=#{isStart}
+                </if>
+            </trim>
+        ORDER BY createTime DESC limit #{pageIndex},#{pageSize}
+    </select>
+    <!--查询总记录数-->
+    <select id="getCount" parameterType="Map" resultType="int">
+        SELECT count(1) FROM au_user
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="loginCode!=null">
+                and loginCode LIKE concat('%',#{loginCode},'%')
+            </if>
+            <if test="referCode!=null">
+                and referCode LIKE concat('%',#{referCode},'%')
+            </if>
+            <if test="roleId>0">
+                and roleId=#{roleId}
+            </if>
+            <if test="isStart>0">
+                and isStart=#{isStart}
+            </if>
+        </trim>
 
+    </select>
+    <!--新增用户-->
+    <insert id="addUser" parameterType="User" >
+        INSERT INTO au_user(<include refid="sqlSelect"/> )
+        VALUES (#{id},#{loginCode},#{password},#{password2},#{userName},
+        #{sex},#{birthday},#{cardType},#{cardTypeName},#{idCard},
+        #{country},#{mobile},#{email},#{userAddress},#{postCode},
+        #{createTime},#{referId},#{referCode},#{roleId},#{roleName},
+        #{userType},#{userTypeName},#{isStart},#{lastUpdateTime},
+        #{lastLoginTime},#{bankAccount},#{bankName},#{accountHolder},
+        #{idCardPicPath},#{bankPicPath})
+    </insert>
+    <!--删除图片-->
+    <update id="delUserPic" parameterType="User">
+        UPDATE au_user
+            <set>
+                <if test="idCardPicPath!=null and idCardPicPath!=''">
+                    idCardPicPath=null,
+                </if>
+                <if test="bankPicPath!=null and bankPicPath!=''">
+                    bankPicPath=null
+                </if>
+            </set>
+        WHERE id=#{id}
+    </update>
+    <!--根据id获取用户-->
+    <select id="getUser" resultType="User">
+        SELECT <include refid="sqlSelect"/> FROM au_user WHERE id=#{xxx}
+    </select>
+    <!--根据id删除用户-->
+    <delete id="deleteUser">
+        DELETE FROM au_user WHERE id=#{xxx}
+    </delete>
+    <!--根据角色id查询用户-->
+    <select id="getUserByRoleId" resultType="User">
+        SELECT <include refid="sqlSelect"/> FROM au_user WHERE roleId=#{xxx}
+    </select>
+    <update id="modifyUserRole" parameterType="User">
+        UPDATE au_user
+          <set>
+              <if test="roleName!=null and roleName!=''">
+                  roleName=#{roleName}
+              </if>
+          </set>
+        WHERE roleId=#{roleId}
+    </update>
 </mapper>

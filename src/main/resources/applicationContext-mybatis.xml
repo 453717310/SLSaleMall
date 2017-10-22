@@ -69,7 +69,10 @@
     <!--配置那个方法被切-->
     <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
-            <tx:method name="hl*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="add*" propagation="REQUIRED" isolation="DEFAULT" rollback-for="Exception"/>
+            <tx:method name="update*" propagation="REQUIRED" isolation="DEFAULT" rollback-for="Exception"/>
+            <tx:method name="del*" propagation="REQUIRED" isolation="DEFAULT" rollback-for="Exception"/>
+            <tx:method name="get*" propagation="REQUIRED" isolation="DEFAULT" read-only="true"/>
         </tx:attributes>
     </tx:advice>
     <!--mapper 接口所在的包名，spring会自动查找其下的Mapper-->
@@ -83,19 +86,40 @@
     </context:component-scan>
     <!--redis的配置-->
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <!--设置最大连接数-->
         <property name="maxTotal" value="90"/>
+        <!--最大闲时连接数-->
         <property name="maxIdle" value="10"/>
+        <!--最大等待时间-->
         <property name="maxWaitMillis" value="1000"/>
         <property name="testOnBorrow" value="true"/>
     </bean>
-    <!--构造注入端口号和ip-->
-    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
-        <constructor-arg  ref="jedisPoolConfig"/>
-        <constructor-arg  value="192.168.21.207"/>
-        <constructor-arg  value="6379"/>
+    <!--设置工厂，配置模板-->
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" destroy-method="destroy">
+        <!--注入配置文件-->
+        <property name="poolConfig" ref="jedisPoolConfig"/>
+        <!--配置ip地址-->
+        <property name="hostName" value="192.168.1.102"/>
+        <!--配置端口-->
+        <property name="port" value="6379"/>
+        <!--是否开启连接池-->
+        <property name="usePool" value="true"/>
+    </bean>
+    <!--spring提供了redis模板需要注入到我们的类中-->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <!--配置工厂-->
+        <property name="connectionFactory" ref="jedisConnectionFactory"/>
+        <!--key的序列化方式-->
+        <property name="keySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+        </property>
+        <!--value的序列化手段-->
+        <property name="valueSerializer">
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>
+        </property>
     </bean>
     <!--注入redisAPI-->
-    <bean id="redisAPI" class="org.slsale.util.JedisAPI">
-        <property name="jedisPool" ref="jedisPool"/>
+    <bean id="redisAPI" class="org.slsale.util.redis.impl.RedisAPI">
+        <property name="redisTemplate" ref="redisTemplate"/>
     </bean>
 </beans>

@@ -4,14 +4,29 @@ import java.util.Date;
 
 /**
  * 权限表
+ * @author dll
  */
 public class Authority extends Base{
-	
-	private int roleId;//角色id
-	private int functionId;//功能id
-	private int userTypeId;//用户类型id
-	private Date creationTime;//创建时间
-	private String createdBy;//创建者
+	/**
+	 * 角色id
+	 */
+	private int roleId;
+	/**
+	 * 功能id
+	 */
+	private int functionId;
+	/**
+	 * 用户类型id
+	 */
+	private int userTypeId;
+	/**
+	 * 创建时间
+	 */
+	private Date creationTime;
+	/**
+	 * 创建者
+	 */
+	private String createdBy;
 
 	public Authority() {
 	}

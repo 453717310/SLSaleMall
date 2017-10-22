@@ -19,10 +19,17 @@ import java.util.Date;
 /**
  * Created by dll on 2017/9/23.
  * 公共的Cotroller
+ * @author dll
  */
 public class BaseCotroller {
-    private Logger logger = Logger.getLogger(BaseCotroller.class);//日志对象
-    private User currentUser;//创建user对象  存放user
+    /**
+     * 日志对象
+     */
+    private Logger logger = Logger.getLogger(BaseCotroller.class);
+    /**
+     *  创建user对象  存放user
+     */
+    private User currentUser;
 
     public User getCurrentUser() {
             //获取当前的session用户
@@ -49,12 +56,10 @@ public class BaseCotroller {
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport(){
-
             @Override
             public String getAsText() {
                 return new SimpleDateFormat("yyyy-MM-dd").format((Date)getValue());
             }
-
             @Override
             public void setAsText(String text) throws IllegalArgumentException {
                 try {

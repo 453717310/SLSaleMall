@@ -55,6 +55,20 @@
       <!-- The fav icon -->
     <link rel="shortcut icon" href="/statics/img/favicon.ico">
     <script type="text/javascript" >var menuList='${mList}'</script>
+
+    <!-- 华丽的分界线 start-->
+    <link href="/statics/css/localCss/addgoodspack.css" rel="stylesheet">
+    <link href="/statics/css/localCss/affiche.css" rel="stylesheet">
+    <link href="/statics/css/localCss/authoritymanage.css" rel="stylesheet">
+    <link href="/statics/css/localCss/dicmanage.css" rel="stylesheet">
+    <link href="/statics/css/localCss/information.css" rel="stylesheet">
+    <link href="/statics/css/localCss/messagelist.css" rel="stylesheet">
+    <link href="/statics/css/localCss/mymessage.css" rel="stylesheet">
+    <link href="/statics/css/localCss/rolelist.css" rel="stylesheet">
+    <link href="/statics/css/localCss/userlist.css" rel="stylesheet">
+
+    <!-- 华丽的分界线 end-->
+
 </head>
 
 <body>

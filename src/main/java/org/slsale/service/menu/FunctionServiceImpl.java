@@ -38,4 +38,16 @@ public class FunctionServiceImpl implements FunctionService {
     public List<Function> getTwoFunctionList(Function function) throws Exception {
         return functionMapper.getTwoFunctionList(function);
     }
+
+    /**
+     * 获取一级功能
+     *
+     * @param function
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<Function> getFirstFunction(Function function) throws Exception {
+        return functionMapper.getFirstFunction(function);
+    }
 }

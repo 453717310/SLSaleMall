@@ -54,7 +54,7 @@
     </context-param>
     <context-param>
         <param-name>webAppRootKey</param-name>
-        <param-value>SLSaleSystem.root</param-value>
+        <param-value>I:\\log\\log.log</param-value>
     </context-param>
     <!--spring 加载log4j监听-->
     <listener>

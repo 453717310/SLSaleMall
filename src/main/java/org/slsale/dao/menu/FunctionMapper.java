@@ -27,4 +27,12 @@ public interface FunctionMapper {
      * @throws Exception
      */
     List<Function> getTwoFunctionList(Function function) throws Exception;
+
+    /**
+     * 获取一级功能
+     * @param function
+     * @return
+     * @throws Exception
+     */
+    List<Function> getFirstFunction(Function function) throws Exception;
 }

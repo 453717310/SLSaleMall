@@ -7,8 +7,8 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <footer>
-    <p class="pull-left">&copy; <a href="http://usman.it" target="_blank">Muhammad Usman</a> 2012</p>
-    <p class="pull-right">Powered by: <a href="http://usman.it/free-responsive-admin-template">Charisma</a></p>
+    <p class="pull-left">&copy; <a href="http://usman.it" target="_blank">interface</a> 2017</p>
+    <p class="pull-right">Powered by: <a href="http://usman.it/free-responsive-admin-template">Interface</a></p>
 </footer>
 
 </div><!--/.fluid-container-->
@@ -86,7 +86,10 @@
 <script src="/statics/js/jquery.history.js"></script>
 <!-- application script for Charisma demo -->
 <script src="/statics/js/charisma.js"></script>
+<script src="/statics/js/json2.js"></script>
 
-
+<script src="/statics/js/ajaxfileupload.js"></script>
+<script src="/statics/medire/WdatePicker.js"></script>
+<script src="/statics/js/localJs/public.js"></script>
 </body>
 </html>

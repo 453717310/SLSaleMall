@@ -5,16 +5,20 @@
 <mapper namespace="org.slsale.dao.menu.FunctionMapper">
     <!--sql片段-->
     <sql id="sqlFunction">
-        SELECT id,functionCode,functionName,funcUrl,parentId,creationTime FROM au_function
+         id,functionCode,functionName,funcUrl,parentId,creationTime
     </sql>
     <!--根据角色id获取一级菜单-->
     <select id="getFirstFunctionList" parameterType="Authority" resultType="Function">
-      <include refid="sqlFunction" />
+        SELECT <include refid="sqlFunction" /> FROM au_function
         WHERE id IN(SELECT functionId FROM au_authority WHERE parentId=0 AND roleId=#{roleId})
     </select>
     <!--根据父id与角色id获取二级菜单-->
     <select id="getTwoFunctionList" parameterType="Function" resultType="Function">
-        <include refid="sqlFunction"/>
+        SELECT <include refid="sqlFunction"/> FROM au_function
         WHERE parentId=#{id} AND  id IN(SELECT functionId FROM au_authority WHERE roleId=#{roleId})
+    </select>
+    <!--获取一级功能-->
+    <select id="getFirstFunction" parameterType="Function" resultType="Function">
+        SELECT <include refid="sqlFunction"/> FROM au_function WHERE parentId=#{id}
     </select>
 </mapper>

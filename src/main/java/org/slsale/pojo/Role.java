@@ -1,11 +1,12 @@
 package org.slsale.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 角色类
  */
-public class Role extends Base{
+public class Role  extends Base{
 	
 	private String roleCode;//角色编码
 	private String roleName;//角色名称
